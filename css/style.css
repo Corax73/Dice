@@ -1,0 +1,6 @@
+th, td {
+    padding: 15px;
+    border-spacing: 30px;
+    border: red 2px solid;
+    text-align: center;
+}
