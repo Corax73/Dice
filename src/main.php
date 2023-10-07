@@ -15,7 +15,7 @@ $glassWithBones = [
 function throwing():array
 {
     $results = [];
-    for($i = 1; $i < 7; $i++) {
+    for($i = 1; $i < 6; $i++) {
         $results[] = mt_rand(1, 6);
     }
     shuffle($results);
@@ -35,10 +35,9 @@ function checkCombinations(array $results):array
         'poker' => 0,
         'chance' => 0
     ];
-    $countPair = 0;
     
     $str = implode('', $results);
-    if(preg_match('/123456/', $str)) {
+    if(preg_match('/12456/', $str)) {
         $resp['chance'] = 1;
     }
     for($i = 0; $i < count($results); $i++) {
@@ -46,14 +45,10 @@ function checkCombinations(array $results):array
             if(isset($results[$i+2]) && $results[$i+1] === $results[$i+2]) {
                 if(isset($results[$i+3]) && $results[$i+2] === $results[$i+3]) {
                     if(isset($results[$i+4]) && $results[$i+3] === $results[$i+4]) {
-                        if(isset($results[$i+5]) && $results[$i+4] === $results[$i+5]) {
-                            $resp['poker'] = 1;
-                        } else {
-                            $resp['square'] = 1;
-                        }
+                        $resp['poker'] = 1;
                     } else {
-                    $resp['triple'] = 1;
-                }
+                        $resp['square'] = 1;
+                    }
                 } else {
                     $resp['triple'] = 1;
                 }
@@ -66,6 +61,21 @@ function checkCombinations(array $results):array
             }
         }
     }
+    if($resp['two_pairs']) {
+        $resp['pair'] = 0;
+    } elseif($resp['triple']) {
+        $resp['two_pairs'] = 0;
+        $resp['pair'] = 0;
+    } elseif ($resp['square']) {
+        $resp['triple'] = 0;
+        $resp['two_pairs'] = 0;
+        $resp['pair'] = 0;
+    } elseif ($resp['poker']) {
+        $resp['square'] = 0;
+        $resp['triple'] = 0;
+        $resp['two_pairs'] = 0;
+        $resp['pair'] = 0;
+    }
     return $resp;
 }
 
@@ -76,6 +86,9 @@ function createResponse(array $check):string
         if($value) {
             $respStr .= 'You have ' . $key;
         }
+    }
+    if(empty($respStr)) {
+        $respStr = 'No winning combinations.';
     }
     return $respStr;
 }

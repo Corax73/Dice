@@ -9,8 +9,11 @@
 </head>
 <body>
     <table>
-        <th colspan="6">
+        <caption>
             Dice
+        </caption>
+        <th colspan="6">
+            Dice faces
         </th>
         <tr>
             <?php for($i = 1; $i < 7; $i++) { ?>
@@ -26,6 +29,8 @@
                 </form>
             </td>
         </tr>
+    </table>
+    <table>
         <tr>
             <?php foreach($results as $result) { ?>
                 <td>
@@ -36,6 +41,11 @@
         <tr>
             <td colspan="6">
                 <?php print $response ?>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6">
+                <?php print_r($results) ?>
             </td>
         </tr>
     </table>
