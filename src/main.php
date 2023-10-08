@@ -2,6 +2,7 @@
 
 $results = [];
 $response = 'We are waiting for your throw.';
+$newResults = [];
 
 $glassWithBones = [
     1 => '1.jpg',
@@ -39,7 +40,12 @@ function checkCombinations(array $results):array
     $str = implode('', $results);
     if(preg_match('/12456/', $str)) {
         $resp['chance'] = 1;
+    } elseif (preg_match('/12345/', $str) || preg_match('/23456/', $str)) {
+        $resp['bigStreet'] = 1;    
+    } elseif (preg_match('/1234/', $str) || preg_match('/2345/', $str) || preg_match('/3456/', $str)) {
+        $resp['smallStreet'] = 1;
     }
+
     for($i = 0; $i < count($results); $i++) {
         if(isset($results[$i+1]) && $results[$i] === $results[$i+1]) {
             if(isset($results[$i+2]) && $results[$i+1] === $results[$i+2]) {
@@ -61,12 +67,17 @@ function checkCombinations(array $results):array
             }
         }
     }
-    if($resp['two_pairs']) {
+    if($resp['two_pairs'] && $resp['triple']) {
         $resp['pair'] = 0;
-    } elseif($resp['triple']) {
+        $resp['two_pairs'] = 0;
+        $resp['triple'] = 0;
+         $resp['fullHouse'] = 1;
+    } elseif ($resp['two_pairs'] && !$resp['triple']) {
+        $resp['pair'] = 0;
+    } elseif($resp['triple'] && !$resp['square']) {
         $resp['two_pairs'] = 0;
         $resp['pair'] = 0;
-    } elseif ($resp['square']) {
+    } elseif ($resp['square'] && !$resp['poker']) {
         $resp['triple'] = 0;
         $resp['two_pairs'] = 0;
         $resp['pair'] = 0;
@@ -93,8 +104,31 @@ function createResponse(array $check):string
     return $respStr;
 }
 
+function secondThrowing(array $checkedBones, array $oldResults):array
+{
+    $secondResults = [];
+    if(count($checkedBones) > 0) {
+        $countChecked = count($checkedBones);
+        if($countChecked > 0) {
+            $intermediateResults = [];
+            foreach($checkedBones as $bone) {
+                $intermediateResults[$bone] = $oldResults[$bone];
+            }
+            for($i = 0; $i < 5; $i++) {
+                $secondResults[$i] = isset($intermediateResults[$i]) ? $intermediateResults[$i] : mt_rand(1, 6);
+            }
+        }
+    }
+    return $secondResults;
+}
+
 if(isset($_POST['btn'])) {
     $results = throwing();
-    $check = checkCombinations($results);
+}
+
+if(isset($_POST['btnSecond'])) {
+    $results = $_POST['oldResults'];
+    $newResults = secondThrowing($_POST['checkedBones'], $_POST['oldResults']);
+    $check = checkCombinations($newResults);
     $response = createResponse($check);
 }

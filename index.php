@@ -25,16 +25,30 @@
         <tr>
             <td colspan="6">
                 <form action="" method="post">
-                    <button type="submit" value="1" name="btn">Throw</button>
+                    <button type="submit" value="1" name="btn">First throw</button>
                 </form>
             </td>
         </tr>
     </table>
     <table>
+        <form action="" method="post">
+            <tr>
+                <?php foreach($results as $key => $value) { ?>
+                    <td>
+                    <img src="/bones/<?php print $value ?>.jpg" alt="">
+                    <input type="checkbox" name="checkedBones[]" value="<?php print $key ?>">
+                    <input type="hidden" name="oldResults[]" value="<?php print $value ?>">
+                </td>
+                <?php } ?>
+            </tr>
+            <td colspan="6">
+                <button type="submit" value="1" name="btnSecond">Second throw</button>
+            </td>
+        </form>
         <tr>
-            <?php foreach($results as $result) { ?>
+            <?php foreach($newResults as $key => $value) { ?>
                 <td>
-                    <img id="<?php $i ?>" src="/bones/<?php print $result ?>.jpg" alt="">
+                    <img src="/bones/<?php print $value ?>.jpg" alt="">
                 </td>
             <?php } ?>
         </tr>
