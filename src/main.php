@@ -4,15 +4,10 @@ $results = [];
 $response = 'We are waiting for your throw.';
 $newResults = [];
 
-$glassWithBones = [
-    1 => '1.jpg',
-    2 => '2.jpg',
-    3 => '3.jpg',
-    4 => '4.jpg',
-    5 => '5.jpg',
-    6 => '6.jpg',
-];
-
+/**
+ * Puts random dice results into an array and shuffles it.
+ * @return array
+ */
 function throwing():array
 {
     $results = [];
@@ -23,6 +18,11 @@ function throwing():array
     return $results;
 }
 
+/**
+ * Checks the throw results for consistency.
+ * @param array $results
+ * @return array
+ */
 function checkCombinations(array $results):array
 {
     $resp = [
@@ -67,29 +67,70 @@ function checkCombinations(array $results):array
             }
         }
     }
-    if($resp['two_pairs'] && $resp['triple']) {
-        $resp['pair'] = 0;
-        $resp['two_pairs'] = 0;
-        $resp['triple'] = 0;
-         $resp['fullHouse'] = 1;
-    } elseif ($resp['two_pairs'] && !$resp['triple']) {
-        $resp['pair'] = 0;
-    } elseif($resp['triple'] && !$resp['square']) {
-        $resp['two_pairs'] = 0;
-        $resp['pair'] = 0;
-    } elseif ($resp['square'] && !$resp['poker']) {
-        $resp['triple'] = 0;
-        $resp['two_pairs'] = 0;
-        $resp['pair'] = 0;
-    } elseif ($resp['poker']) {
-        $resp['square'] = 0;
-        $resp['triple'] = 0;
-        $resp['two_pairs'] = 0;
-        $resp['pair'] = 0;
-    }
     return $resp;
 }
 
+/**
+ * Resets overlapping results.
+ * @param array $finalArray
+ * @return array
+ */
+function analysisFinalArray(array $finalArray):array
+{
+    if($finalArray['two_pairs'] && $finalArray['triple']) {
+        $finalArray['pair'] = 0;
+        $finalArray['two_pairs'] = 0;
+        $finalArray['triple'] = 0;
+        $finalArray['fullHouse'] = 1;
+    } elseif ($finalArray['two_pairs'] && !$finalArray['triple']) {
+        $finalArray['pair'] = 0;
+    } elseif($finalArray['triple'] && !$finalArray['square']) {
+        $finalArray['two_pairs'] = 0;
+        $finalArray['pair'] = 0;
+    } elseif ($finalArray['square'] && !$finalArray['poker']) {
+        $finalArray['triple'] = 0;
+        $finalArray['two_pairs'] = 0;
+        $finalArray['pair'] = 0;
+    } elseif ($finalArray['poker']) {
+        $finalArray['square'] = 0;
+        $finalArray['triple'] = 0;
+        $finalArray['two_pairs'] = 0;
+        $finalArray['pair'] = 0;
+    }
+    return $finalArray;
+}
+
+/**
+ * Creates a new roll result taking into account the results of the first throw selected for saving.
+ * @param array $checkedBones
+ * @param array $oldResults
+ * @return array
+ */
+function secondThrowing(array $oldResults, array $checkedBones):array
+{
+    $secondResults = [];
+    if(count($checkedBones) > 0) {
+        $countChecked = count($checkedBones);
+        if($countChecked > 0) {
+            $intermediateResults = [];
+            foreach($checkedBones as $bone) {
+                $intermediateResults[$bone] = $oldResults[$bone];
+            }
+            for($i = 0; $i < 5; $i++) {
+                $secondResults[$i] = isset($intermediateResults[$i]) ? $intermediateResults[$i] : mt_rand(1, 6);
+            }
+        }
+    } else {
+        $secondResults = throwing();
+    }
+    return $secondResults;
+}
+
+/**
+ * Creates a response based on an array of results.
+ * @param array $check
+ * @return string
+ */
 function createResponse(array $check):string
 {
     $respStr = '';
@@ -104,31 +145,15 @@ function createResponse(array $check):string
     return $respStr;
 }
 
-function secondThrowing(array $checkedBones, array $oldResults):array
-{
-    $secondResults = [];
-    if(count($checkedBones) > 0) {
-        $countChecked = count($checkedBones);
-        if($countChecked > 0) {
-            $intermediateResults = [];
-            foreach($checkedBones as $bone) {
-                $intermediateResults[$bone] = $oldResults[$bone];
-            }
-            for($i = 0; $i < 5; $i++) {
-                $secondResults[$i] = isset($intermediateResults[$i]) ? $intermediateResults[$i] : mt_rand(1, 6);
-            }
-        }
-    }
-    return $secondResults;
-}
-
 if(isset($_POST['btn'])) {
     $results = throwing();
 }
 
 if(isset($_POST['btnSecond'])) {
     $results = $_POST['oldResults'];
-    $newResults = secondThrowing($_POST['checkedBones'], $_POST['oldResults']);
-    $check = checkCombinations($newResults);
-    $response = createResponse($check);
+    $checkedBones = isset($_POST['checkedBones']) ? $_POST['checkedBones'] : [];
+    $newResults = secondThrowing($results, $checkedBones);
+    $comparisonResults = checkCombinations($newResults);
+    $resp = analysisFinalArray($comparisonResults);
+    $response = createResponse($resp);
 }

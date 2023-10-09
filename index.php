@@ -25,7 +25,7 @@
         <tr>
             <td colspan="6">
                 <form action="" method="post">
-                    <button type="submit" value="1" name="btn">First throw</button>
+                    <button id="firstThrow" type="submit" value="1" name="btn">First throw</button>
                 </form>
             </td>
         </tr>
@@ -42,7 +42,7 @@
                 <?php } ?>
             </tr>
             <td colspan="6">
-                <button type="submit" value="1" name="btnSecond">Second throw</button>
+                <button type="submit" id="secondThrow" value="1" name="btnSecond">Second throw</button>
             </td>
         </form>
         <tr>
@@ -55,11 +55,6 @@
         <tr>
             <td colspan="6">
                 <?php print $response ?>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="6">
-                <?php print_r($results) ?>
             </td>
         </tr>
     </table>
